@@ -107,12 +107,13 @@ me tienes que pasar qué moneda estás cobrando, qué cantidad estás cobrando
         .then((datos) => {
         /*Entonces ya vamos a tener los datos, el "datos" es un objeto
         accedemos a sus datos como en cualquier objeto, con un destructuring*/
-            //console.log(datos);
+            console.log(datos);
             /*Aquí hay una respuesta en errores, 404 si no 
             encontró nada o demás...*/
             if(datos.cod === "404"){//ciudad
                 mostrarError('ciudad no encontrada');
             }else {
+                //Solución problema eliminar html previo...
                 limpiarHTMLPrevio();
                 mostrarClima(datos);
             }
@@ -137,6 +138,10 @@ me tienes que pasar qué moneda estás cobrando, qué cantidad estás cobrando
 }
 function mostrarClima(datos){//Iterar sobre los datos...
 
+    /*También quiero extraer el nombre de la ciudad, por lo que me voy
+    al objeto grande que es datos y también lo igualo con ciudad, pero 
+    eso es en el name*/
+const {name} = datos;
     const {main: {temp, temp_max, temp_min}} = datos;
     /*La información que quiero está dentro del objeto main, peroo. 
     yo antes tenía pss el datos, por lo que si accedo a datos como
@@ -148,27 +153,37 @@ function mostrarClima(datos){//Iterar sobre los datos...
         console.log(temp - 273.15);*/
 
     const temperaturaCentigrados = Math.round(temp - 273.15);
-    /*const temperaturaMxma = Math.round(temp_max - 273.15); 
-    const temperaturaMnma = Math.round(temp_min - 273.15); 
-    */
+    const temperaturMaxima = kelvinaCelcius(temp_max);
+    const temperaturMinima = kelvinaCelcius(temp_min);
     const temperaturaActual = document.createElement('p');
+     /*Aquí nadamás me queda hacer los elemenos y colocarles su valor
+    IMPORTANTE: Aquí resolvimos un problema de dos maneras distintas...
+    Convertimos los gradosKelvin a grados centigrados y lo redondeamos 
+    mandando llamar una función que se encargara de ello y pasándole como 
+    argumento el valor que estos tienen ya de la API, perooo.
+     */
     temperaturaActual.innerHTML = 
     `<p>${temperaturaCentigrados} &#8451</p>`;
     temperaturaActual.classList.add('font-bold', 'text-6xl', 'text-white');
 
+    const tempMaxima = document.createElement('p');
+    tempMaxima.innerHTML = `Max: ${temperaturMaxima}&#8451`;
+    const tempMinima = document.createElement('p');
+    tempMinima.innerHTML =`Min: ${temperaturMinima} &#8451`;
+
+    //COLOCANDO MÁS INFORMACIÓN EXTRAÍDA DE LA API...
+    const nombreCiudad = document.createElement('p');
+    nombreCiudad.innerHTML = `Clima en ${name}`;
+
+
     const resultadoDiv = document.createElement('div');
     resultadoDiv.classList.add('text-center', 'text-white');
-    resultadoDiv.appendChild(temperaturaActual);
-   
-    resultado.appendChild(resultadoDiv);
-    //SOLUCIÓN PROBLEMA
-    /*En este problema lo que pasa es que al colocar mi resultado de lo 
-    que sería la temperatura del país, y volver a colocar de nuevo otra 
-    ciudad, me pone un resultado y el otro, pero yo sólo quiero el que 
-    acabo de poner, el otro ya no lo quiero...
+    resultadoDiv.append(temperaturaActual, tempMaxima, tempMinima, nombreCiudad);
+
+    /*O también ya extraído lo podría colocar en el inicio por ejemplo...
+     en temperatura actual al ya tener extraído los datos pss ya...*/
     
-    Para esto lo que debo de hacer es borrar el anterior básicamente
-    o limpiar el html previo.... lo mando llamar antes de mostrar el clima...*/ 
+    resultado.appendChild(resultadoDiv);
     formulario.reset();
     /*Ahora, lo que tendría que hacer sería ammm
     podría redondearlo.
@@ -192,10 +207,23 @@ function limpiarHTMLPrevio(){
     }
 }
 
+function kelvinaCelcius(grados) {//Por alguna razón pasándole un sólo parámetro funciona y poniéndole dos no
+ /*Quizás sea porque al colcoarle un argumento sólamente por función, aunque 
+ sea llamada dos veces con distinto argumento toma uno sólamente, si, debe ser eso, ahora que lo pienso
+ es lo lógico jajjaja...
+ Entonces: Una función que se manda a llamar varias veces, pero que tiene sólo un 
+ argumento, en la función declarada tedrá un parámetro y ese tomará el valor
+ de todos los argumentos que existan...*/ 
+
+  return parseInt(grados - 273.15);
+}
+
 /*Pero claro, obviamente lo que tenemos que hacer es ir en secuencia, primero claramente que 
 tenemos que validar el formulario y hacer nuestra kEY DE LA API que vayamos a utilizar
 
 Ya después de validar el formulario tenemos que obtener UNA API KEY o la llave de la api
 
-
+después de llamar la apikey mostramos el clima, borramos la referencia al 
+anterior que se encima, reseteamos el formulario, agregamos estilos 
+cambiamos kelvin a grados y demás...
 */
